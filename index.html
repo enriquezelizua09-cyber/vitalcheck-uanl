@@ -36,13 +36,30 @@
     <div class="watch-face">
         <div class="brand">VITALCHECK UANL PRO+</div>
         <div class="sub-brand">MONITOREO MULTI-PARÁMETRO 🐯</div>
+        
         <div class="data-grid">
-            <div class="stat-card" style="border-bottom-color: var(--ritmo);"><span class="label">❤️ Ritmo Card.</span><span class="value" id="ritmo">--</span></div>
-            <div class="stat-card" style="border-bottom-color: var(--pulso);"><span class="label">🟢 Pulso</span><span class="value" id="pulso">--</span></div>
-            <div class="stat-card full"><span class="label">🩺 Presión Arterial</span><span class="value" id="presion">--/--</span></div>
-            <div class="stat-card"><span class="label">💧 Oxígeno</span><span class="value" id="spo2" style="color:var(--oxigeno)">--%</span></div>
-            <div class="stat-card"><span class="label">🧠 Estrés</span><span class="value" id="stress" style="color:var(--estres)">--</span></div>
-            <div id="status" class="status-bar">SISTEMA LISTO 📡</div>
+            <div class="stat-card" style="border-bottom-color: var(--ritmo);">
+                <span class="label">❤️ Ritmo Card.</span>
+                <span class="value" id="ritmo">--</span>
+            </div>
+            <div class="stat-card" style="border-bottom-color: var(--pulso);">
+                <span class="label">🟢 Pulso</span>
+                <span class="value" id="pulso">--</span>
+            </div>
+            <div class="stat-card full">
+                <span class="label">🩺 Presión Arterial</span>
+                <span class="value" id="presion">--/--</span>
+            </div>
+            <div class="stat-card">
+                <span class="label">💧 Oxígeno</span>
+                <span class="value" id="spo2" style="color:var(--oxigeno)">--%</span>
+            </div>
+            <div class="stat-card">
+                <span class="label">🧠 Estrés</span>
+                <span class="value" id="stress" style="color:var(--estres)">--</span>
+            </div>
+
+            <div id="status" class="status-bar">SISTEMA VINCULADO 📡</div>
             <button class="btn-scan" id="btnRun">INICIAR ESCANEO TOTAL 🐾</button>
         </div>
     </div>
@@ -52,9 +69,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <script>
-        // ESTA ES TU NUEVA LLAVE DE LA FOTO
+        // CONFIGURACIÓN DE EMAILJS (CON TU LLAVE NUEVA)
         emailjs.init("VeCZdnCnq1BloNv1D");
 
+        // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDDhRZNryWN07E_OptzOOAAwizePs_7tWo",
             authDomain: "vitalcheckuanl.firebaseapp.com",
@@ -67,8 +85,9 @@
 
         document.getElementById('btnRun').addEventListener('click', function() {
             const btn = this;
-            btn.innerText = "PROCESANDO...";
+            btn.innerText = "ESCANEANDO...";
             
+            // Generación de datos aleatorios
             const latidos = Math.floor(Math.random() * (95 - 65)) + 65;
             const sis = Math.floor(Math.random() * (130 - 115)) + 115;
             const dia = Math.floor(Math.random() * (85 - 75)) + 75;
@@ -76,12 +95,14 @@
             const stressNum = Math.floor(Math.random() * (100 - 10)) + 10;
             const presionStr = sis + "/" + dia;
 
+            // Actualizar interfaz visual
             document.getElementById('ritmo').innerText = latidos + " LPM";
             document.getElementById('pulso').innerText = latidos;
             document.getElementById('presion').innerText = presionStr;
             document.getElementById('spo2').innerText = spo2 + "%";
             document.getElementById('stress').innerText = stressNum + "/100";
 
+            // 1. Guardar en Firebase (Base de datos)
             database.ref('monitoreo/actual').set({
                 ritmo_cardiaco: latidos,
                 pulso: latidos,
@@ -90,7 +111,7 @@
                 estres: stressNum,
                 timestamp: new Date().toLocaleTimeString()
             }).then(() => {
-                // IDs de Servicio y Plantilla que vi en tus fotos anteriores
+                // 2. Enviar Correo con EmailJS (Sincronizado con tu Plantilla)
                 emailjs.send("service_g3h6git", "template_nmh9554", {
                     ritmo: latidos,
                     presion: presionStr,
@@ -100,8 +121,8 @@
                     document.getElementById('status').innerText = "✅ REPORTE ENVIADO A ENRIQUE";
                     btn.innerText = "NUEVO ESCANEO";
                 }).catch((error) => {
-                    document.getElementById('status').innerText = "❌ ERROR: Revisa el Gmail";
-                    console.log(error);
+                    document.getElementById('status').innerText = "❌ ERROR: Revisa EmailJS";
+                    console.log("Error:", error);
                 });
             });
         });
