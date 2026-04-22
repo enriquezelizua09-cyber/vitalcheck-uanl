@@ -3,84 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VITALCHECK UANL PRO+</title>
+    <title>VITALCHECK UANL</title>
     <style>
-        :root { --uanl-blue: #004a8d; --uanl-gold: #ffcc00; --oxigeno: #00d4ff; --ritmo: #ff3366; --estres: #a255ff; --pulso: #00ff88; }
-        body { font-family: 'Arial Black', sans-serif; background: #000; color: white; text-align: center; margin: 0; padding: 15px; }
-        .watch-face { background: linear-gradient(145deg, #001a33, #000); border: 8px solid var(--uanl-blue); border-radius: 50px; padding: 20px; max-width: 360px; margin: auto; box-shadow: 0 0 40px rgba(0, 74, 141, 0.4); }
-        .brand { color: var(--uanl-gold); font-size: 1.3rem; margin-bottom: 5px; }
-        .sub-brand { color: white; font-size: 0.75rem; margin-bottom: 15px; border-bottom: 2px solid var(--uanl-gold); padding-bottom: 8px; }
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-card { background: rgba(255, 255, 255, 0.06); padding: 12px; border-radius: 15px; text-align: left; border-bottom: 3px solid var(--uanl-blue); }
-        .stat-card.full { grid-column: span 2; }
-        .label { font-size: 0.6rem; color: var(--uanl-gold); text-transform: uppercase; font-weight: bold; }
-        .value { font-size: 1.6rem; font-weight: bold; display: block; }
-        .status-bar { grid-column: span 2; background: var(--uanl-blue); padding: 8px; border-radius: 20px; margin-top: 12px; font-size: 0.65rem; color: var(--uanl-gold); font-weight: bold; }
-        .btn-scan { grid-column: span 2; background: var(--uanl-gold); color: var(--uanl-blue); border: none; padding: 18px; border-radius: 15px; font-weight: 900; font-size: 1rem; margin-top: 15px; cursor: pointer; width: 100%; transition: 0.2s; }
+        :root { --uanl-blue: #004a8d; --uanl-gold: #ffcc00; }
+        body { font-family: sans-serif; background: #000; color: white; text-align: center; padding: 20px; }
+        .watch-face { border: 5px solid var(--uanl-blue); border-radius: 30px; padding: 20px; max-width: 300px; margin: auto; }
+        .value { font-size: 2rem; font-weight: bold; color: var(--uanl-gold); display: block; margin: 10px 0; }
+        .btn-scan { background: var(--uanl-gold); color: var(--uanl-blue); border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; }
+        #status { margin-top: 15px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <div class="watch-face">
-        <div class="brand">VITALCHECK UANL PRO+</div>
-        <div class="sub-brand">MONITOREO MULTI-PARÁMETRO 🐯</div>
-        <div class="data-grid">
-            <div class="stat-card" style="border-bottom-color: var(--ritmo);"><span class="label">❤️ Ritmo Card.</span><span class="value" id="ritmo">--</span></div>
-            <div class="stat-card" style="border-bottom-color: var(--pulso);"><span class="label">🟢 Pulso</span><span class="value" id="pulso">--</span></div>
-            <div class="stat-card full"><span class="label">🩺 Presión Arterial</span><span class="value" id="presion">--/--</span></div>
-            <div class="stat-card"><span class="label">💧 Oxígeno</span><span class="value" id="spo2" style="color:var(--oxigeno)">--%</span></div>
-            <div class="stat-card"><span class="label">🧠 Estrés</span><span class="value" id="stress" style="color:var(--estres)">--</span></div>
-            <div id="status" class="status-bar">SISTEMA VINCULADO 📡</div>
-            <button class="btn-scan" id="btnRun">INICIAR ESCANEO TOTAL 🐾</button>
-        </div>
+        <h3>VITALCHECK UANL 🐯</h3>
+        <p>Ritmo Cardíaco:</p>
+        <span id="ritmo" class="value">--</span>
+        <p>Presión:</p>
+        <span id="presion" class="value">--/--</span>
+        <div id="status">SISTEMA LISTO</div>
+        <br>
+        <button class="btn-scan" id="btnRun">ENVIAR REPORTE</button>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <script>
-        emailjs.init("VeCZdnCnq1BloNv1D");
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDDhRZNryWN07E_OptzOOAAwizePs_7tWo",
-            authDomain: "vitalcheckuanl.firebaseapp.com",
-            databaseURL: "https://vitalcheckuanl-default-rtdb.firebaseio.com",
-            projectId: "vitalcheckuanl",
-            appId: "1:215053007016:web:42e248b7c9313ef6fdaa9d"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        (function() {
+            emailjs.init("VeCZdnCnq1BloNv1D");
+        })();
 
         document.getElementById('btnRun').addEventListener('click', function() {
             const btn = this;
-            btn.innerText = "ESCANEANDO...";
+            btn.innerText = "ENVIANDO...";
             
-            const latidos = Math.floor(Math.random() * (95 - 65)) + 65;
-            const pres = (Math.floor(Math.random() * (130 - 115)) + 115) + "/80";
-            const ox = Math.floor(Math.random() * (100 - 96)) + 96;
-            const est = Math.floor(Math.random() * (100 - 10)) + 10;
+            const r = Math.floor(Math.random() * (95 - 65)) + 65;
+            const p = "120/80";
 
-            document.getElementById('ritmo').innerText = latidos + " LPM";
-            document.getElementById('pulso').innerText = latidos;
-            document.getElementById('presion').innerText = pres;
-            document.getElementById('spo2').innerText = ox + "%";
-            document.getElementById('stress').innerText = est + "/100";
+            document.getElementById('ritmo').innerText = r + " LPM";
+            document.getElementById('presion').innerText = p;
 
-            database.ref('monitoreo/actual').set({
-                ritmo: latidos, presion: pres, oxigeno: ox, estres: est, time: new Date().toLocaleTimeString()
-            }).then(() => {
-                emailjs.send("service_g3h6git", "template_nmh9554", {
-                    ritmo: latidos,
-                    presion: pres,
-                    oxigeno: ox,
-                    estres: est
-                }).then(() => {
-                    document.getElementById('status').innerText = "✅ REPORTE ENVIADO A ENRIQUE";
-                    btn.innerText = "NUEVO ESCANEO";
-                }).catch((err) => {
-                    document.getElementById('status').innerText = "❌ ERROR: Revisa EmailJS";
-                    console.log(err);
-                });
+            // Enviar correo directo
+            emailjs.send("service_g3h6git", "template_nmh9554", {
+                ritmo: r,
+                presion: p,
+                oxigeno: "98%",
+                estres: "Normal"
+            }).then(function() {
+                document.getElementById('status').innerText = "✅ ¡ENVIADO A ENRIQUE!";
+                document.getElementById('status').style.color = "#00ff00";
+                btn.innerText = "ENVIAR OTRO";
+            }, function(error) {
+                document.getElementById('status').innerText = "❌ ERROR: " + JSON.stringify(error);
+                document.getElementById('status').style.color = "#ff0000";
+                btn.innerText = "REINTENTAR";
             });
         });
     </script>
